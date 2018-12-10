@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta charset="utf-8"/>
+  <script type="application/javascript">
+  
+    function render() {
+      var canvas = document.getElementById('canvas');
+      if (canvas.getContext) {
+        var ctx = canvas.getContext('2d');
+        var background = document.getElementById("sbg");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Box width
+        var bw = 2000;
+        // Box height
+        var bh = 1000;
+        // Padding
+        var p = 0;
+
+        var scale = 40;
+
+        var rightPressed = false;
+        var upPressed = false;
+        var downPressed = false;
+        var leftPressed = false;
+
+        const right = 39;
+        const left = 37;
+        const up = 38;
+        const down = 40;
+
+        const level  =   {x: 0 ,y: 15, length: 40, height: 5, area: 30 * 20}
+        const scaledlevel  =   {x: level.x * scale ,y: level.y * scale , length: level.length * scale, height: level.height * scale, area: level.length * level.height * scale}
+        const level2 =   {x: 10, y: 10, length: 20, height: 2}
+        const scaledlevel2 =   {x: level2.x * scale, y: level2.y * scale, length: level2.length * scale, height: level2.height * scale}
+        var player   =   {x: 500, y: 0, length: 1, height: 1}
+        var scaledplayer   =   {x: player.x * scale, y: player.y * scale, length: player.length * scale, height: player.height * scale}
+        var acceleration = 1;
+        var gravity = .5;
+        var velx = 0;
+        var vely = 0;
+        var maxspeed = 10;
+        var friction = 2;
+        var jumpheight = 15;
+        var jumpcounter = 0;
+        var xcollide = 0;
+
+        //color for ground = 21, 128, 9
+
+        var img1 = document.getElementById("guy1");
+        var img2 = document.getElementById("guy2");
+        var img3 = document.getElementById("guy3");
+        var background = document.getElementById("background");
+        var background2 = document.getElementById("background2");
+        var framecount = 0;
+
+
+
+        document.addEventListener("keydown", keyDownHandler, false);
+        document.addEventListener("keyup", keyUpHandler, false);
+        
+        function keyDownHandler(e) {
+            if(e.keyCode == right) {
+            rightPressed = true;
+        }
+            if(e.keyCode == left) {
+            leftPressed = true;
+        }
+            if(e.keyCode == up) {
+            upPressed = true;
+        }
+            else if(e.keyCode == down) {
+            downPressed = true;
+        }
+        
+}
+
+        function keyUpHandler(e) {
+            if(e.keyCode == right) {
+            rightPressed = false;
+        }
+            if(e.keyCode == left) {
+            leftPressed = false;
+        }
+            if(e.keyCode == up) {
+            upPressed = false;
+        }
+            else if(e.keyCode == down) {
+            downPressed = false;
+        }
+}
+        
+        function draw() {
+        
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);   
+            drawmenu();
+            animate();
+            drawBumper();
+            drawBG();
+            drawBoard();
+            drawText();
+            
+
+            framecount += 1;
+            
+
+            
+        function drawBG(){
+
+            //ctx.fillRect(scaledlevel.x, scaledlevel.y ,scaledlevel.length, scaledlevel.height);
+            //ctx.fillRect(scaledlevel2.x, scaledlevel2.y ,scaledlevel2.length, scaledlevel2.height);
+
+        }
+
+        function animate(){
+
+            let mod2 = framecount/10 % 10;
+            let pan = 3;
+
+
+            //steady anim
+            if(mod2 < 5){
+                ctx.drawImage(background,-player.x/pan + 1000,0, 1000, 1000);
+                ctx.drawImage(background,-player.x/pan,0, 1000, 1000);
+                ctx.drawImage(background,-player.x/pan - 1000,0, 1000, 1000);
+                ctx.drawImage(background,-player.x/pan + 2000,0, 1000, 1000);
+                ctx.drawImage(background,-player.x/pan,+ 3000, 1000, 1000);
+                ctx.drawImage(background,-player.x/pan - 2000,0, 1000, 1000);
+            }
+            else if(mod2 > 0){
+                ctx.drawImage(background2,-player.x/pan + 1000,0, 1000, 1000);
+                ctx.drawImage(background2,-player.x/pan,0, 1000, 1000);
+                ctx.drawImage(background2,-player.x/pan - 1000,0, 1000, 1000);
+                ctx.drawImage(background2,-player.x/pan + 2000,0, 1000, 1000);
+                ctx.drawImage(background2,-player.x/pan,+ 3000, 1000, 1000);
+                ctx.drawImage(background2,-player.x/pan - 2000,0, 1000, 1000);
+            }
+
+            //on move anim
+            let mod = framecount/2 % 10;
+            
+            if(mod < 5 && rightPressed || mod < 5 && leftPressed){
+                ctx.drawImage(img1,500,player.y - 50, 125, 125);
+            }
+            else if(mod > 0 && rightPressed || mod > 0 && leftPressed){
+                ctx.drawImage(img2,500,player.y - 50, 125, 125);
+            }
+            else{
+                ctx.drawImage(img3,500,player.y - 50, 125, 125);
+            }
+
+            if(mod2 < 5){
+                ctx.drawImage(ground,-player.x + 1000,-125, 1000, 1000);
+                ctx.drawImage(ground,-player.x,-125, 1000, 1000);
+                ctx.drawImage(ground,-player.x - 1000,-125, 1000, 1000);
+                ctx.drawImage(ground,-player.x + 2000,-125, 1000, 1000);
+                ctx.drawImage(ground,-player.x - 2000,-125, 1000, 1000);
+                ctx.drawImage(ground,-player.x + 3000,-125, 1000, 1000);
+                
+            }
+            else if(mod2 > 0){
+                ctx.drawImage(ground2,-player.x + 1000,-125, 1000, 1000);
+                ctx.drawImage(ground2,-player.x,-125, 1000, 1000);
+                ctx.drawImage(ground2,-player.x - 1000,-125, 1000, 1000);
+                ctx.drawImage(ground2,-player.x + 2000,-125, 1000, 1000);
+                ctx.drawImage(ground2,-player.x - 2000,-125, 1000, 1000);
+                ctx.drawImage(ground2,-player.x + 3000,-125, 1000, 1000);
+            }
+
+            ctx.fillStyle = 'rgb(21,128,9)';
+            ctx.fillRect(-player.x - 3000,0,1000,1000)
+            
+
+            
+            
+            
+        }
+        
+        function drawmenu(){
+            ctx.fillStyle="white";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            
+        }
+        
+        function drawText(){
+
+            //ctx.font = "40px comic";
+            //ctx.fillStyle="white";
+            // ctx.fillText("vely: " + vely ,50, 660);
+            // ctx.fillText("jumpcount: " + jumpcounter ,250, 660);
+            //ctx.fillText("x: " + (player.x + scaledplayer.length) ,500, 660);
+            // ctx.fillText("velx: " + velx ,650, 660);
+            // ctx.fillText("xcollide: " + xcollide,800, 660);
+            
+
+        }
+        
+                
+        function drawBumper(){
+            ctx.fillStyle="black";
+
+            
+
+            velx = Math.round(velx);
+
+            if(rightPressed && leftPressed){
+                velx = 0;
+            }
+            if(vely > 10 * scale){
+                vely = 10 * scale;
+            }
+
+            if (jumpcounter > 1){
+                jumpcounter -= .5;
+            }
+            else{
+                jumpcounter = 0;
+                
+            }
+
+                if(player.y + scaledplayer.height >= scaledlevel.y){
+                
+                    player.y = scaledlevel.y - scaledplayer.height;
+
+                    jumpcount += 2;
+
+
+                } else{
+                    jumpcount = 3;
+                    player.y -= -3;
+                    vely += gravity;
+                    player.y += vely;
+                }  
+
+                
+                if(player.x < -2500 - 50){
+                    xcollide = 1;
+                    player.x -= velx - acceleration;
+                }
+                else{
+                    xcollide = 0;
+                }
+
+
+                // if(player.y + scaledplayer.height < scaledlevel2.x + scaledlevel2.height && player.y > scaledlevel2.x && player.x < scaledlevel2.x + scaledlevel2.length && player.x > scaledlevel2.x){
+                //     player.x -= velx - acceleration;
+                //     xcollide = 1;
+                // }else{
+                //     xcollide = 0;
+                // }
+                
+            
+             ctx.fillStyle="black";
+
+                if(leftPressed){
+                    velx += -acceleration;
+                    player.x += velx;
+                }
+                if(!leftPressed){
+                    if(velx < 0){
+                        velx += acceleration * friction;
+                        player.x += velx;
+                        
+                    }
+                    if(velx > maxspeed){
+                        velx = maxspeed -1;
+                    }
+                }
+                if(rightPressed){
+                    velx += acceleration;
+                    player.x += velx;
+                }
+                if(!rightPressed){
+                    if(velx > 0){
+                        velx += -acceleration * friction;
+                        player.x += velx;
+                    }
+                    if(velx <  -maxspeed){
+                        velx = -maxspeed - 1;
+                    }
+                    
+                }
+                    if(upPressed){
+                        
+                        if(jumpcounter == 0){
+                            jumpcounter = 25;
+                            console.log(vely);
+                            player.y -= vely;
+                            vely = -jumpheight;
+                            
+                        }
+                    }
+                    
+                               
+        }
+                
+                function drawBoard(){
+
+                    ctx.fillStyle="black";
+                    ctx.strokeStyle = "black";
+                    ctx.stroke();
+                    
+                    //grid length=36( * 40)
+
+                    //grid height=19.5( * 40)
+
+                /*
+                    for (var x = 0; x <= bw; x += scale) {
+                        ctx.moveTo(0.5 + x + p, p);
+                        ctx.lineTo(0.5 + x + p, bh + p);
+                    }
+
+
+                    for (var x = 0; x <= bh; x += 40) {
+                        ctx.moveTo(p, 0.5 + x + p);
+                        ctx.lineTo(bw + p, 0.5 + x + p);
+                    }
+
+                */
+}
+                       
+        }
+        
+        setInterval(draw, 20);
+        
+      }
+    }
+  </script>
+  <style>
+  body, html{
+
+        width:100%;
+        height:100%;
+        margin:0; 
+        display:flex;
+        justify-content:center;  
+        align-items:center;
+  
+  }
+	canvas{
+
+        display:block;
+        margin: auto auto;
+	    margin:0px;
+
+}
+
+img{
+    display:none;
+}
+	
+	
+  </style>
+ </head>
+ <body onload="render();">
+   <canvas id="canvas"></canvas>
+   <img class="hidden" id="guy1" src="./guy/guy1.png" />
+   <img class="hidden" id="guy2" src="./guy/guy2.png" />
+   <img class="hidden" id="guy3" src="./guy/guy3.png" />
+   <img class="hidden" id="background" src="./guy/background.png" />
+   <img class="hidden" id="background2" src="./guy/background2.png" />
+   <img class="hidden" id="ground" src="./guy/ground.png" />
+   <img class="hidden" id="ground2" src="./guy/ground2.png" />
+ </body>
+</html>
